@@ -13,6 +13,8 @@
     "test:e2e:ai-builder": "playwright test e2e/ai-builder.spec.ts"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.4.1",
+    "@vercel/speed-insights": "^1.1.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.26.2",

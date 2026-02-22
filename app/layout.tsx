@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import AnalyticsProvider from "./components/analytics/AnalyticsProvider";
 import { VercelAnalytics } from "./components/analytics/VercelAnalytics";
+import SupportChatbot from "./components/help/SupportChatbot";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -44,6 +45,7 @@ export default function RootLayout({
                 <AnalyticsProvider>
                     {children}
                     <VercelAnalytics />
+                    <SupportChatbot />
                 </AnalyticsProvider>
             </body>
         </html>

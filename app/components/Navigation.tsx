@@ -64,6 +64,14 @@ export default function Navigation() {
                         >
                             Pricing
                         </Link>
+                        <Link
+                            href="/help"
+                            className={`font-medium transition-colors ${
+                                isScrolled ? 'text-gray-600 hover:text-surf-DEFAULT' : 'text-white/90 hover:text-white'
+                            }`}
+                        >
+                            Help
+                        </Link>
 
                         <Link
                             href="/login"
@@ -99,6 +107,7 @@ export default function Navigation() {
                         <Link href="#services" className="block text-gray-700 hover:text-surf-DEFAULT font-medium py-2">Services</Link>
                         <Link href="#features" className="block text-gray-700 hover:text-surf-DEFAULT font-medium py-2">Features</Link>
                         <Link href="/pricing" className="block text-gray-700 hover:text-surf-DEFAULT font-medium py-2">Pricing</Link>
+                        <Link href="/help" className="block text-gray-700 hover:text-surf-DEFAULT font-medium py-2">Help</Link>
                         <Link href="/login" className="block text-gray-700 hover:text-surf-DEFAULT font-medium py-2">Login</Link>
                         <Link href="#cta" className="block w-full text-center px-6 py-3 bg-surf hover:bg-surf-dark text-white rounded-xl font-semibold">
                             Start Free Trial

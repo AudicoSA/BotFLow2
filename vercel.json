@@ -79,16 +79,16 @@
     }
   ],
   "functions": {
-    "api/webhooks/paystack.ts": {
+    "app/api/webhooks/paystack/route.ts": {
       "maxDuration": 30
     },
-    "api/webhooks/whatsapp.ts": {
+    "app/api/webhooks/whatsapp/route.ts": {
       "maxDuration": 30
     },
-    "api/ai-assistant/chat.ts": {
+    "app/api/ai-assistant/chat/route.ts": {
       "maxDuration": 60
     },
-    "api/receipts/process-ocr.ts": {
+    "app/api/receipts/process-ocr/route.ts": {
       "maxDuration": 60
     }
   },

@@ -4,6 +4,7 @@ import Services from './components/Services';
 import SocialProof from './components/SocialProof';
 import Features from './components/Features';
 import Pricing from './components/Pricing';
+import Testimonials from './components/conversion/Testimonials';
 import CallToAction from './components/CallToAction';
 import Footer from './components/Footer';
 
@@ -15,6 +16,7 @@ export default function Home() {
             <Services />
             <SocialProof />
             <Features />
+            <Testimonials variant="full" showStats={true} showLogos={true} maxItems={6} />
             <Pricing />
             <CallToAction />
             <Footer />

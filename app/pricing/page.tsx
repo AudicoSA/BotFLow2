@@ -5,6 +5,8 @@ import FeatureComparison from '../components/pricing/FeatureComparison';
 import PricingFAQ from '../components/pricing/PricingFAQ';
 import PricingCTA from '../components/pricing/PricingCTA';
 import Footer from '../components/Footer';
+import Testimonials from '../components/conversion/Testimonials';
+import ComparisonTable from '../components/conversion/ComparisonTable';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -22,6 +24,8 @@ export default function PricingPage() {
             <Navigation />
             <PricingHero />
             <PricingTiers />
+            <ComparisonTable type="whatsapp" showCalculator={false} />
+            <Testimonials variant="carousel" showStats={true} showLogos={false} maxItems={4} />
             <FeatureComparison />
             <PricingFAQ />
             <PricingCTA />

@@ -4,6 +4,8 @@ import "./globals.css";
 import AnalyticsProvider from "./components/analytics/AnalyticsProvider";
 import { VercelAnalytics } from "./components/analytics/VercelAnalytics";
 import SupportChatbot from "./components/help/SupportChatbot";
+import ExitIntentPopup from "./components/conversion/ExitIntentPopup";
+import { MobileStickyBar } from "./components/conversion/MobileOptimizations";
 
 const inter = Inter({
     subsets: ["latin"],
@@ -46,6 +48,8 @@ export default function RootLayout({
                     {children}
                     <VercelAnalytics />
                     <SupportChatbot />
+                    <ExitIntentPopup />
+                    <MobileStickyBar />
                 </AnalyticsProvider>
             </body>
         </html>

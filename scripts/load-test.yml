@@ -1,0 +1,153 @@
+# Artillery Load Test Configuration for BotFlow
+# Usage: artillery run scripts/load-test.yml
+
+config:
+  target: "https://botflow.co.za"
+  phases:
+    # Warm up
+    - duration: 60
+      arrivalRate: 5
+      name: "Warm up"
+    # Ramp to 50 users
+    - duration: 120
+      arrivalRate: 10
+      rampTo: 50
+      name: "Ramp to 50"
+    # Stay at 50
+    - duration: 180
+      arrivalRate: 50
+      name: "Steady at 50"
+    # Ramp to 100
+    - duration: 120
+      arrivalRate: 50
+      rampTo: 100
+      name: "Ramp to 100"
+    # Stay at 100
+    - duration: 300
+      arrivalRate: 100
+      name: "Steady at 100"
+    # Peak at 200
+    - duration: 120
+      arrivalRate: 100
+      rampTo: 200
+      name: "Ramp to 200"
+    # Stay at peak
+    - duration: 300
+      arrivalRate: 200
+      name: "Peak load"
+    # Ramp to 500 (stress test)
+    - duration: 120
+      arrivalRate: 200
+      rampTo: 500
+      name: "Stress test ramp"
+    # Max load
+    - duration: 300
+      arrivalRate: 500
+      name: "Maximum load"
+
+  defaults:
+    headers:
+      Content-Type: "application/json"
+      User-Agent: "BotFlow-LoadTest/1.0"
+
+  plugins:
+    expect: {}
+    metrics-by-endpoint: {}
+
+  variables:
+    testUsers:
+      - email: "loadtest1@example.com"
+        password: "LoadTest123!"
+      - email: "loadtest2@example.com"
+        password: "LoadTest123!"
+      - email: "loadtest3@example.com"
+        password: "LoadTest123!"
+
+  ensure:
+    p95: 2000      # 95th percentile under 2 seconds
+    maxErrorRate: 5 # Max 5% error rate
+
+scenarios:
+  # Landing page flow
+  - name: "Browse Landing Page"
+    weight: 40
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+      - think: 2
+      - get:
+          url: "/pricing"
+          expect:
+            - statusCode: 200
+      - think: 3
+      - get:
+          url: "/help"
+          expect:
+            - statusCode: 200
+
+  # Authentication flow
+  - name: "Login and Dashboard"
+    weight: 30
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ testUsers[0].email }}"
+            password: "{{ testUsers[0].password }}"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+          expect:
+            - statusCode: 200
+      - think: 1
+      - get:
+          url: "/api/dashboard"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+      - think: 2
+      - get:
+          url: "/api/billing/usage"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          expect:
+            - statusCode: 200
+
+  # Checkout flow
+  - name: "Checkout Flow"
+    weight: 15
+    flow:
+      - get:
+          url: "/pricing"
+          expect:
+            - statusCode: 200
+      - think: 3
+      - post:
+          url: "/api/checkout"
+          json:
+            plan: "ai_assistant"
+            billingCycle: "monthly"
+          expect:
+            - statusCode:
+                - 200
+                - 302
+
+  # Health checks
+  - name: "Health Checks"
+    weight: 15
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/health/live"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/health/ready"
+          expect:
+            - statusCode: 200

@@ -15,7 +15,9 @@
   "dependencies": {
     "@vercel/analytics": "^1.4.1",
     "@vercel/speed-insights": "^1.1.0",
+    "bullmq": "^5.34.0",
     "clsx": "^2.1.1",
+    "ioredis": "^5.4.2",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.26.2",
     "lucide-react": "^0.562.0",

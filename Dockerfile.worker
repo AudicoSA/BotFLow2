@@ -1,0 +1,35 @@
+# BotFlow2 Background Worker - Dockerfile
+# Runs BullMQ workers for background job processing
+
+FROM node:20-alpine
+
+# Add necessary packages
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json* ./
+
+# Install production dependencies only
+RUN npm ci --only=production
+
+# Copy worker files
+COPY lib/queue ./lib/queue
+COPY lib/billing ./lib/billing
+COPY lib/config ./lib/config
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 worker
+USER worker
+
+# Environment
+ENV NODE_ENV=production
+
+# Health check for worker
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD node -e "process.exit(0)" || exit 1
+
+# Start worker
+CMD ["node", "lib/queue/worker.js"]

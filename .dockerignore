@@ -1,0 +1,73 @@
+# Docker ignore file for BotFlow2
+# Excludes files not needed in the Docker image
+
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-error.log*
+
+# Build outputs (we build inside container)
+.next
+out
+dist
+build
+
+# Development files
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test.local
+
+# IDE and editor files
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation (keep README for reference)
+*.md
+!README.md
+docs/
+
+# Tests
+__tests__
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+coverage
+.nyc_output
+
+# Misc
+*.log
+*.tmp
+*.temp
+.cache
+.turbo
+
+# Supabase local
+supabase/.branches
+supabase/.temp
+
+# Vercel
+.vercel
+
+# Railway/Render configs (not needed in image)
+railway.json
+railway.toml
+render.yaml

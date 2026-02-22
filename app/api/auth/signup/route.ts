@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createUser } from '@/lib/auth/users';
 import { validateEmail, validatePassword } from '@/lib/auth/types';
+import { sendWelcomeEmail, sendVerificationEmail } from '@/lib/email/service';
+import { scheduleTrialReminders, scheduleFeatureEducationCampaign } from '@/lib/email/campaigns';
+import { appConfig } from '@/lib/config/environment';
 
 // POST /api/auth/signup - Create a new user account
 export async function POST(request: NextRequest) {
@@ -43,8 +46,60 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // In production, send verification email here
-        // await sendVerificationEmail(result.user.email, result.verificationToken);
+        // Send verification email
+        const verificationUrl = `${appConfig.url}/auth/verify?token=${result.verificationToken}`;
+        await sendVerificationEmail(
+            result.user.email,
+            result.user.id,
+            {
+                userName: result.user.name || 'there',
+                verificationUrl,
+                expiresIn: '24 hours',
+            }
+        );
+
+        // Calculate trial end date (14 days from now)
+        const trialEndDate = new Date();
+        trialEndDate.setDate(trialEndDate.getDate() + 14);
+
+        // Queue welcome email and onboarding campaigns
+        try {
+            await sendWelcomeEmail(
+                result.user.email,
+                result.user.id,
+                {
+                    userName: result.user.name || 'there',
+                    userEmail: result.user.email,
+                    trialEndDate: trialEndDate.toLocaleDateString('en-ZA', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                    }),
+                    dashboardUrl: `${appConfig.url}/dashboard`,
+                }
+            );
+
+            // Schedule trial reminders
+            await scheduleTrialReminders({
+                id: result.user.id,
+                email: result.user.email,
+                name: result.user.name || 'User',
+                trialEndDate,
+                createdAt: new Date(),
+            });
+
+            // Schedule feature education drip campaign
+            await scheduleFeatureEducationCampaign({
+                id: result.user.id,
+                email: result.user.email,
+                name: result.user.name || 'User',
+                createdAt: new Date(),
+            });
+        } catch (emailError) {
+            // Log but don't fail signup if email scheduling fails
+            console.error('Failed to schedule onboarding emails:', emailError);
+        }
 
         return NextResponse.json(
             {

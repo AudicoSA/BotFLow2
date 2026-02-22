@@ -14,6 +14,9 @@ import {
     handleChargeSuccess,
     handlePaymentFailed,
 } from '@/lib/supabase/subscriptions';
+import { sendPaymentFailedEmail, sendSubscriptionRenewalEmail } from '@/lib/email/service';
+import { cancelScheduledEmails } from '@/lib/email/campaigns';
+import { appConfig } from '@/lib/config/environment';
 import type { PaystackSubscription, PaystackTransaction } from '@/lib/paystack/types';
 
 export async function POST(request: NextRequest) {
@@ -56,6 +59,9 @@ export async function POST(request: NextRequest) {
                 const result = await handleSubscriptionCreate(subscriptionData, userId, planId);
                 if (!result.success) {
                     console.error('Failed to handle subscription create:', result.error);
+                } else {
+                    // Cancel trial reminder emails since user upgraded
+                    await cancelScheduledEmails(userId, 'trial');
                 }
             } else {
                 console.warn('Missing user_id or plan_id in subscription metadata');
@@ -74,11 +80,32 @@ export async function POST(request: NextRequest) {
             const transactionData = event.data as PaystackTransaction;
             const metadata = transactionData.metadata as Record<string, unknown> || {};
             const userId = (metadata.user_id as string) || '';
+            const userEmail = transactionData.customer?.email || '';
+            const userName = (metadata.user_name as string) || 'Customer';
 
             if (userId) {
                 const result = await handleChargeSuccess(transactionData, userId);
                 if (!result.success) {
                     console.error('Failed to handle charge success:', result.error);
+                } else if (userEmail && transactionData.plan?.name) {
+                    // Send subscription renewal confirmation email
+                    const amount = (transactionData.amount / 100).toFixed(2);
+                    await sendSubscriptionRenewalEmail(
+                        userEmail,
+                        userId,
+                        {
+                            userName,
+                            planName: transactionData.plan.name,
+                            amount,
+                            currency: transactionData.currency || 'ZAR',
+                            renewalDate: new Date().toLocaleDateString('en-ZA', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            }),
+                            invoiceUrl: `${appConfig.url}/dashboard/settings/billing`,
+                        }
+                    );
                 }
             }
         }
@@ -90,6 +117,8 @@ export async function POST(request: NextRequest) {
             };
             const metadata = data.subscription?.customer?.metadata as Record<string, unknown> || {};
             const userId = (metadata.user_id as string) || '';
+            const userEmail = data.subscription?.customer?.email || '';
+            const userName = (metadata.user_name as string) || 'Customer';
 
             if (userId && data.subscription?.subscription_code) {
                 const result = await handlePaymentFailed(
@@ -99,6 +128,28 @@ export async function POST(request: NextRequest) {
                 );
                 if (!result.success) {
                     console.error('Failed to handle payment failed:', result.error);
+                } else if (userEmail) {
+                    // Send payment failed notification email
+                    const amount = (data.amount / 100).toFixed(2);
+                    const retryDate = new Date();
+                    retryDate.setDate(retryDate.getDate() + 3); // Retry in 3 days
+
+                    await sendPaymentFailedEmail(
+                        userEmail,
+                        userId,
+                        {
+                            userName,
+                            amount,
+                            currency: 'ZAR',
+                            failureReason: 'Payment could not be processed',
+                            retryDate: retryDate.toLocaleDateString('en-ZA', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            }),
+                            updatePaymentUrl: `${appConfig.url}/dashboard/settings/billing?update=payment`,
+                        }
+                    );
                 }
             }
         }

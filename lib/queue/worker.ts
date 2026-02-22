@@ -45,12 +45,48 @@ async function processBillingJob(jobData: Record<string, unknown>): Promise<void
  * Process email jobs
  */
 async function processEmailJob(jobData: Record<string, unknown>): Promise<void> {
-    const { type, to, userId, templateData } = jobData;
+    const { to, templateData } = jobData;
+    const emailType = (templateData as Record<string, unknown>)?.emailType as string || jobData.type;
 
-    console.log(`[Email] Sending ${type} email to ${to}`);
+    console.log(`[Email] Sending ${emailType} email to ${to}`);
 
-    // Email sending would be implemented here
-    // Using Resend or SendGrid
+    try {
+        // Dynamic import to avoid circular dependencies
+        const { sendEmail } = await import('@/lib/email/client');
+        const { generateEmail } = await import('@/lib/email/service');
+        const { emailConfig, appConfig } = await import('@/lib/config/environment');
+
+        // Generate email content from template
+        const email = generateEmail(
+            emailType as Parameters<typeof generateEmail>[0],
+            templateData as Record<string, unknown>
+        );
+
+        if (!email) {
+            console.warn(`[Email] Unknown email type: ${emailType}`);
+            return;
+        }
+
+        // Send the email
+        const result = await sendEmail({
+            from: `${appConfig.name} <${emailConfig.fromEmail}>`,
+            to: to as string,
+            subject: email.subject,
+            html: email.html,
+            tags: [
+                { name: 'type', value: String(emailType) },
+            ],
+        });
+
+        if (result.success) {
+            console.log(`[Email] Successfully sent ${emailType} to ${to}, id: ${result.id}`);
+        } else {
+            throw new Error(result.error || 'Failed to send email');
+        }
+    } catch (error) {
+        console.error(`[Email] Failed to send ${emailType} to ${to}:`, error);
+        throw error;
+    }
 }
 
 /**

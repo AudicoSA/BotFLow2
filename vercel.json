@@ -7,7 +7,7 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "devCommand": "npm run dev",
-  "regions": ["jnb1"],
+  "regions": ["cpt1"],
   "build": {
     "env": {
       "NODE_ENV": "production"

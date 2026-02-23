@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Play, ArrowRight, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, ArrowRight, CheckCircle, X } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Hero() {
@@ -34,13 +34,11 @@ export default function Hero() {
 
             {/* Content */}
             <div className="container mx-auto px-4 z-10 relative">
-                <div className="grid lg:grid-cols-2 gap-12 items-center">
-                    {/* Left Column - Text Content */}
+                <div className="max-w-3xl mx-auto text-center">
                     <motion.div
-                        initial={{ opacity: 0, x: -30 }}
-                        animate={{ opacity: 1, x: 0 }}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
-                        className="text-left"
                     >
                         <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-white/30 bg-white/10 backdrop-blur-md">
                             <span className="text-surf-light font-medium text-sm tracking-wide uppercase">
@@ -55,13 +53,13 @@ export default function Hero() {
                             </span>
                         </h1>
 
-                        <p className="text-xl text-gray-200 mb-8 font-light leading-relaxed max-w-xl">
+                        <p className="text-xl text-gray-200 mb-8 font-light leading-relaxed max-w-xl mx-auto">
                             AI Assistant, WhatsApp automation, and Receipt processing -
                             all in one platform. Save hours every day and delight your customers.
                         </p>
 
                         {/* Benefits */}
-                        <div className="flex flex-wrap gap-4 mb-8">
+                        <div className="flex flex-wrap justify-center gap-4 mb-8">
                             {benefits.map((benefit, index) => (
                                 <div key={index} className="flex items-center gap-2 text-white/90">
                                     <CheckCircle className="w-5 h-5 text-surf-light" />
@@ -71,7 +69,7 @@ export default function Hero() {
                         </div>
 
                         {/* CTAs */}
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Link
                                 href="#cta"
                                 className="px-8 py-4 bg-surf hover:bg-surf-dark text-white rounded-full font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-surf/50 flex items-center gap-2 group animate-pulse-glow"
@@ -90,63 +88,20 @@ export default function Hero() {
                                 Watch Demo
                             </button>
                         </div>
-                    </motion.div>
 
-                    {/* Right Column - Video/Demo Preview */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 30 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="relative hidden lg:block"
-                    >
-                        <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-white/5 backdrop-blur-sm">
-                            {/* Demo Video Thumbnail */}
-                            <div className="aspect-video relative">
-                                {!isVideoPlaying ? (
-                                    <>
-                                        <video
-                                            className="w-full h-full object-cover"
-                                            poster="/hero-wave-new.jpg"
-                                            muted
-                                        >
-                                            <source src="/BotFlow__WhatsApp_Automation.mp4" type="video/mp4" />
-                                        </video>
-                                        <div className="absolute inset-0 bg-dark-navy/30 flex items-center justify-center">
-                                            <button
-                                                onClick={() => setIsVideoPlaying(true)}
-                                                className="w-20 h-20 rounded-full bg-white/90 text-surf-dark flex items-center justify-center hover:scale-110 transition-transform shadow-xl"
-                                            >
-                                                <Play fill="currentColor" className="w-8 h-8 ml-1" />
-                                            </button>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <video
-                                        className="w-full h-full object-cover"
-                                        autoPlay
-                                        controls
-                                    >
-                                        <source src="/BotFlow__WhatsApp_Automation.mp4" type="video/mp4" />
-                                    </video>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Floating Stats Card */}
+                        {/* Floating Stats */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.5 }}
-                            className="absolute -bottom-6 -left-6 bg-white rounded-xl shadow-xl p-4 border border-gray-100"
+                            className="mt-12 inline-flex items-center gap-3 bg-white rounded-xl shadow-xl p-4 border border-gray-100"
                         >
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                                    <CheckCircle className="w-6 h-6 text-green-600" />
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500">Average setup time</p>
-                                    <p className="text-xl font-bold text-dark-navy">Under 5 min</p>
-                                </div>
+                            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div className="text-left">
+                                <p className="text-sm text-gray-500">Average setup time</p>
+                                <p className="text-xl font-bold text-dark-navy">Under 5 min</p>
                             </div>
                         </motion.div>
                     </motion.div>
@@ -163,6 +118,43 @@ export default function Hero() {
                     <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
                 </div>
             </motion.div>
+
+            {/* Video Modal */}
+            <AnimatePresence>
+                {isVideoPlaying && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+                        onClick={() => setIsVideoPlaying(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="relative w-full max-w-4xl mx-4"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <button
+                                onClick={() => setIsVideoPlaying(false)}
+                                className="absolute -top-12 right-0 text-white/80 hover:text-white transition-colors"
+                            >
+                                <X className="w-8 h-8" />
+                            </button>
+                            <div className="rounded-2xl overflow-hidden shadow-2xl">
+                                <video
+                                    className="w-full"
+                                    autoPlay
+                                    controls
+                                >
+                                    <source src="/BotFlow__WhatsApp_Automation.mp4" type="video/mp4" />
+                                </video>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </section>
     );
 }
